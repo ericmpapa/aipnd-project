@@ -64,6 +64,12 @@ def predict(image_path, checkpoint, category_names, topk, gpu):
         ps = torch.exp(model(image.unsqueeze(0)))
         top_p_tensor, top_idx = ps.topk(topk, dim=1)
 
+        top_classes = []
+
+        if len(top_idx) > 0:
+            for k in range(len(top_idx[0])):
+                top_classes.append(top_idx[0][k].item())
+
         top_names = []
 
         if len(top_idx) > 0:
@@ -76,7 +82,7 @@ def predict(image_path, checkpoint, category_names, topk, gpu):
             for k in range(len(top_p_tensor[0])):
                 top_p.append(top_p_tensor[0][k].item())
 
-        return top_p, top_names
+        return top_p, top_classes, top_names
 
 
 if __name__ == '__main__':
@@ -95,6 +101,6 @@ if __name__ == '__main__':
     if not torch.cuda.is_available() and gpu:
         print("[INFO] GPU is not available, switching to CPU")
         gpu = False
-    top_p, top_names = predict(image_path, checkpoint, category_names, topk, gpu)
+    top_p,top_classes, top_names = predict(image_path, checkpoint, category_names, topk, gpu)
 
-    print(f"probabilities:{top_p}, category names:{top_names}")
+    print(f"probabilities:{top_p}, class names: {top_classes}, category names:{top_names}")
